@@ -7,7 +7,7 @@ const app = express();
 const corsOptions = {
   origin: function (origin, callback) {
     // Check if the request origin is allowed
-    if (!origin || origin === "https://domainbuyingfrontend.vercel.app") {
+    if (!origin || origin === "https://domainbuyingfrontend.vercel.app/") {
       callback(null, true);
     } else {
       // Disallow the request
@@ -23,7 +23,6 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
 
-// ... (previous code)
 
 app.post("/generateDomainSuggestions", async (req, res) => {
   const { niche } = req.body;
