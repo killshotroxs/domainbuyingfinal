@@ -6,11 +6,16 @@ const app = express();
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Just accept all origins during development
-    callback(null, true);
+    // Check if the request origin is allowed
+    if (!origin || origin === "https://domainbuyingfrontend.vercel.app/") {
+      callback(null, true);
+    } else {
+      // Disallow the request
+      callback(new Error("Not allowed by CORS"));
+    }
   },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
@@ -55,7 +60,6 @@ app.post("/generateDomainSuggestions", async (req, res) => {
     res.json({
       suggestions,
     });
-
   } catch (error) {
     console.error("Error fetching domain name suggestions: ", error);
     res.status(500).json({
@@ -84,7 +88,10 @@ app.get("/checkDomainAvailability", async (req, res) => {
 
     res.json(response.data);
   } catch (error) {
-    console.log(`Error checking domain availability for ${domain}:`, error.message);
+    console.log(
+      `Error checking domain availability for ${domain}:`,
+      error.message
+    );
     res.status(500).json({
       message: "Error checking domain availability",
       error: error.message,
@@ -107,7 +114,10 @@ app.post("/getDomainPricing", async (req, res) => {
       },
     });
 
-    console.log(`Pricing response from GoDaddy API for ${domain}:`, response.data);
+    console.log(
+      `Pricing response from GoDaddy API for ${domain}:`,
+      response.data
+    );
 
     res.json(response.data);
   } catch (error) {
@@ -119,6 +129,6 @@ app.post("/getDomainPricing", async (req, res) => {
   }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
