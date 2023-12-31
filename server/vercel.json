@@ -1,12 +1,25 @@
 {
-    "version":2,
+    "version": 2,
     "builds": [
-        {"src": "*.js", "use":"@vercel/node"}
+      { "src": "*.js", "use": "@vercel/node" }
     ],
     "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "/"
-        }
+      {
+        "src": "/generateDomainSuggestions",
+        "dest": "/server.js"
+      },
+      {
+        "src": "/checkDomainAvailability",
+        "dest": "/server.js"
+      },
+      {
+        "src": "/getDomainPricing",
+        "dest": "/server.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/$1"
+      }
     ]
-}
+  }
+  
