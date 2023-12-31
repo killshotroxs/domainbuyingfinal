@@ -1,0 +1,38 @@
+body {
+  background-color: black !important;
+  padding: 1rem;
+  margin: 0;
+  overflow: hidden;
+}
+
+body h1 {
+  color: blueviolet;
+  font-weight: 900;
+  font-size: 2rem;
+}
+
+body h2 {
+  color: cadetblue;
+  font-weight: 500;
+}
+
+.header {
+  display: flex;
+  flex-direction: row; /* Change to column layout on smaller screens */
+  justify-content: space-between; /* Center items on smaller screens */
+  text-align: center;
+}
+
+/* Media query for screens with a width of 768 pixels or less */
+@media (max-width: 768px) {
+  body{
+    overflow: auto;
+  }
+  .header {
+    flex-direction: column; /* Change to column layout on smaller screens */
+    gap: 1rem;
+    justify-content: center;
+  }
+}
+
+
