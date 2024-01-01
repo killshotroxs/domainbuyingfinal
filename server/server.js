@@ -6,11 +6,10 @@ const app = express();
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Check if the request origin is allowed
+    // Check if the request origin is allowed (Hit n Trial)
     if (!origin || origin === "https://www.domainbuy.ing") {
       callback(null, true);
     } else {
-      // Disallow the request
       callback(new Error("Not allowed by CORS"));
     }
   },
@@ -22,7 +21,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
-
 
 app.post("/generateDomainSuggestions", async (req, res) => {
   const { niche } = req.body;
@@ -55,7 +53,7 @@ app.post("/generateDomainSuggestions", async (req, res) => {
         .map((s) => s.replace(/^\d+\.\s*/, ""))
     );
 
-    // Send the suggestions to the client
+    // Send the suggestions to the client via openaiapi
     res.json({
       suggestions,
     });
