@@ -1,18 +1,18 @@
 import "../Domaingeneration/Domainai.css";
 import React, { useState } from "react";
 import axios from "axios";
-import Confetti from "react-confetti"; // Import the Confetti component
+import Confetti from "react-confetti"; // can remove after production
 
 const DomainGenerator = () => {
   const [domainSuggestions, setDomainSuggestions] = useState([]);
   const [availabilityResults, setAvailabilityResults] = useState([]);
   const [formattedPrices, setFormattedPrices] = useState({});
-  const [niche, setNiche] = useState(""); // Added niche to the state
-  const [isConfettiActive, setConfettiActive] = useState(false); // State for confetti
+  const [niche, setNiche] = useState("");
+  const [isConfettiActive, setConfettiActive] = useState(false);
 
   const generateDomains = async () => {
     try {
-      // Call the new endpoint on your server to fetch domain suggestions from OpenAI
+      // calling endpoint to fetch domains
       const openaiResponse = await axios.post(
         "https://domainbuyingserver.vercel.app/generateDomainSuggestions",
         { niche }
@@ -21,9 +21,9 @@ const DomainGenerator = () => {
       const suggestions = openaiResponse.data.suggestions;
 
       setDomainSuggestions(suggestions);
-      setAvailabilityResults([]); // Reset previous availability results
+      setAvailabilityResults([]); 
 
-      // Fetch availability for each domain suggestion
+      // Fetch individual availability 
       const availabilityPromises = suggestions[0].map(async (domain) => {
         try {
           const availabilityResponse = await axios.get(
@@ -47,7 +47,7 @@ const DomainGenerator = () => {
         } catch (error) {
           console.error("Error checking domain availability: ", error);
           return {
-            // Update the object to include possible price data
+            // Update the object to include possible price data (mostly null)
             domain,
             available: false,
             price: null,
