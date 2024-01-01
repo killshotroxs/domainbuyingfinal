@@ -7,7 +7,7 @@ const app = express();
 const corsOptions = {
   origin: function (origin, callback) {
     // Check if the request origin is allowed
-    if (!origin || origin === "https://domainbuyingfrontend.vercel.app") {
+    if (!origin || origin === "https://www.domainbuy.ing") {
       callback(null, true);
     } else {
       // Disallow the request
