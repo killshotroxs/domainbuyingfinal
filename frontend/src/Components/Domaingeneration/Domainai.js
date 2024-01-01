@@ -73,7 +73,7 @@ const DomainGenerator = () => {
       // Reset confetti after a short delay (adjust as needed)
       setTimeout(() => {
         setConfettiActive(false);
-      }, 2000); // 1000 milliseconds = (1 seconds) time of confetti effect
+      }, 3500); // 1000 milliseconds = (1 seconds) time of confetti effect
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
     }
