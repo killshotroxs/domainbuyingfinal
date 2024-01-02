@@ -34,6 +34,16 @@ const DomainGenerator = () => {
             `https://domainbuyingserver.vercel.app/checkDomainAvailability?domain=${domain}`
           );
 
+          if (availabilityResponse.status === 429) {
+            const rateLimitMessage = availabilityResponse.data.message;
+            alert(rateLimitMessage);
+            return {
+              domain,
+              available: false,
+              price: null,
+            };
+          }
+
           const available = availabilityResponse.data.available;
           let price = null;
 
