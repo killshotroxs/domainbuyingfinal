@@ -1,7 +1,7 @@
 import "../Domaingeneration/Domainai.css";
 import React, { useState } from "react";
 import axios from "axios";
-import Confetti from "react-confetti"; // can remove after production
+import Confetti from "react-confetti";
 
 const DomainGenerator = () => {
   const [domainSuggestions, setDomainSuggestions] = useState([]);
@@ -12,34 +12,22 @@ const DomainGenerator = () => {
 
   const generateDomains = async () => {
     try {
-      // calling endpoint to fetch domains
       const openaiResponse = await axios.post(
         "https://domainbuyingserver.vercel.app/generateDomainSuggestions",
         { niche }
       );
 
-      fetch("https://domainbuyingserver.vercel.app/generateDomainSuggestions")
-        .then((response) => {
-          if (response.status === 429) {
-            return response.json(); // Extract the custom message from the response body
-          }
-          return response.json(); // Continue processing for other status codes
-        })
-        .then((data) => {
-          if (data && data.message) {
-            alert(data.message); // Display the custom message to the user
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+      if (openaiResponse.status === 429) {
+        const rateLimitMessage = openaiResponse.data.message;
+        alert(rateLimitMessage);
+        return; // Stop execution if rate limit is exceeded
+      }
 
       const suggestions = openaiResponse.data.suggestions;
 
       setDomainSuggestions(suggestions);
       setAvailabilityResults([]);
 
-      // Fetch individual availability
       const availabilityPromises = suggestions[0].map(async (domain) => {
         try {
           const availabilityResponse = await axios.get(
@@ -49,13 +37,11 @@ const DomainGenerator = () => {
           const available = availabilityResponse.data.available;
           let price = null;
 
-          // If the domain is available, format the price to two decimals.... it gives currently in micro prices
           if (available && availabilityResponse.data.price) {
-            price = (availabilityResponse.data.price / 1000000).toFixed(2); // Price format adjustment
+            price = (availabilityResponse.data.price / 1000000).toFixed(2);
           }
 
           return {
-            // Update the object to include the price
             domain,
             available,
             price,
@@ -63,7 +49,6 @@ const DomainGenerator = () => {
         } catch (error) {
           console.error("Error checking domain availability: ", error);
           return {
-            // Update the object to include possible price data (mostly null)
             domain,
             available: false,
             price: null,
@@ -74,7 +59,6 @@ const DomainGenerator = () => {
       const availabilityResults = await Promise.all(availabilityPromises);
       setAvailabilityResults(availabilityResults);
 
-      // Create an object mapping domains to their formatted prices
       const prices = {};
       availabilityResults.forEach((result) => {
         if (result.available && result.price) {
@@ -83,13 +67,11 @@ const DomainGenerator = () => {
       });
       setFormattedPrices(prices);
 
-      // Activate confetti effect
       setConfettiActive(true);
 
-      // Reset confetti after a short delay (adjust as needed)
       setTimeout(() => {
         setConfettiActive(false);
-      }, 3500); // 1000 milliseconds = (1 seconds) time of confetti effect
+      }, 3500);
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
     }
@@ -102,12 +84,11 @@ const DomainGenerator = () => {
           type="text"
           placeholder="Enter your niche..."
           value={niche}
-          onChange={(e) => setNiche(e.target.value)} // Update niche using setNiche
+          onChange={(e) => setNiche(e.target.value)}
         />
         <button onClick={generateDomains}>Generate Domain Names</button>
       </div>
 
-      {/* Render Confetti component when isConfettiActive is true */}
       {isConfettiActive && <Confetti />}
 
       <div className="domain-list">
