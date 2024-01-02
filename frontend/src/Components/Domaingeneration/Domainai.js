@@ -9,6 +9,7 @@ const DomainGenerator = () => {
   const [formattedPrices, setFormattedPrices] = useState({});
   const [niche, setNiche] = useState("");
   const [isConfettiActive, setConfettiActive] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const generateDomains = async () => {
     try {
@@ -19,8 +20,8 @@ const DomainGenerator = () => {
 
       if (openaiResponse.status === 429) {
         const rateLimitMessage = openaiResponse.data.message;
-        alert(rateLimitMessage);
-        return; // Stop execution if rate limit is exceeded above limit
+        setErrorMessage(rateLimitMessage);
+        return; // Stop execution if rate limit is exceeded
       }
 
       const suggestions = openaiResponse.data.suggestions;
@@ -36,7 +37,7 @@ const DomainGenerator = () => {
 
           if (availabilityResponse.status === 429) {
             const rateLimitMessage = availabilityResponse.data.message;
-            alert(rateLimitMessage);
+            setErrorMessage(rateLimitMessage);
             return {
               domain,
               available: false,
@@ -84,11 +85,16 @@ const DomainGenerator = () => {
       }, 3500);
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
+      setErrorMessage(
+        "An error occurred while fetching domain name suggestions."
+      );
     }
   };
 
   return (
     <div>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
+
       <div className="search">
         <input
           type="text"
