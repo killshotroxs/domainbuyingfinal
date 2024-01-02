@@ -18,12 +18,28 @@ const DomainGenerator = () => {
         { niche }
       );
 
+      fetch("https://domainbuyingserver.vercel.app/generateDomainSuggestions")
+        .then((response) => {
+          if (response.status === 429) {
+            return response.json(); // Extract the custom message from the response body
+          }
+          return response.json(); // Continue processing for other status codes
+        })
+        .then((data) => {
+          if (data && data.message) {
+            alert(data.message); // Display the custom message to the user
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+
       const suggestions = openaiResponse.data.suggestions;
 
       setDomainSuggestions(suggestions);
-      setAvailabilityResults([]); 
+      setAvailabilityResults([]);
 
-      // Fetch individual availability 
+      // Fetch individual availability
       const availabilityPromises = suggestions[0].map(async (domain) => {
         try {
           const availabilityResponse = await axios.get(
@@ -90,10 +106,10 @@ const DomainGenerator = () => {
         />
         <button onClick={generateDomains}>Generate Domain Names</button>
       </div>
-  
+
       {/* Render Confetti component when isConfettiActive is true */}
       {isConfettiActive && <Confetti />}
-  
+
       <div className="domain-list">
         {domainSuggestions.map((domains, index) => (
           <div key={index} className="domain-box">
@@ -109,7 +125,7 @@ const DomainGenerator = () => {
                     }`}
                   >
                     {availabilityResults[subIndex].available
-                      ? `Available - ${formattedPrices[domain] || ''}`
+                      ? `Available - ${formattedPrices[domain] || ""}`
                       : "Not Available"}
                   </div>
                 )}
