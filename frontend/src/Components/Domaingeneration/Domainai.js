@@ -20,7 +20,7 @@ const DomainGenerator = () => {
       if (openaiResponse.status === 429) {
         const rateLimitMessage = openaiResponse.data.message;
         alert(rateLimitMessage);
-        return; // Stop execution if rate limit is exceeded
+        return; // Stop execution if rate limit is exceeded above limit
       }
 
       const suggestions = openaiResponse.data.suggestions;
