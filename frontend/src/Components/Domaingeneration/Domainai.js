@@ -59,6 +59,7 @@ const DomainGenerator = () => {
           };
         } catch (error) {
           console.error("Error checking domain availability: ", error);
+          setErrorMessage("An error occurred while checking domain availability.");
           return {
             domain,
             available: false,
@@ -85,15 +86,17 @@ const DomainGenerator = () => {
       }, 3500);
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
-      setErrorMessage(
-        "An error occurred while fetching domain name suggestions."
-      );
+      setErrorMessage("An error occurred while fetching domain name suggestions.");
     }
   };
 
   return (
     <div>
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {errorMessage && (
+        <div className="error-message">
+          {errorMessage}
+        </div>
+      )}
 
       <div className="search">
         <input
@@ -107,30 +110,28 @@ const DomainGenerator = () => {
 
       {isConfettiActive && <Confetti />}
 
-      <div className="domain-list">
-        {domainSuggestions.map((domains, index) => (
-          <div key={index} className="domain-box">
-            {domains.map((domain, subIndex) => (
-              <div key={subIndex} className="domain-item">
-                {domain}
-                {availabilityResults.length > subIndex && (
-                  <div
-                    className={`availability-result ${
-                      availabilityResults[subIndex].available
-                        ? "available"
-                        : "not-available"
-                    }`}
-                  >
-                    {availabilityResults[subIndex].available
-                      ? `Available - ${formattedPrices[domain] || ""}`
-                      : "Not Available"}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
+      {domainSuggestions.map((domains, index) => (
+        <div key={index} className="domain-box">
+          {domains.map((domain, subIndex) => (
+            <div key={subIndex} className="domain-item">
+              {domain}
+              {availabilityResults.length > subIndex && (
+                <div
+                  className={`availability-result ${
+                    availabilityResults[subIndex].available
+                      ? "available"
+                      : "not-available"
+                  }`}
+                >
+                  {availabilityResults[subIndex].available
+                    ? `Available - ${formattedPrices[domain] || ""}`
+                    : "Not Available"}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 };
