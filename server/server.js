@@ -3,6 +3,7 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const app = express();
+const rateLimit = require('express-rate-limit');
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -21,6 +22,14 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
+
+const limiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  max: 10, // limit each IP to 10 requests per windowMs
+  message: 'Too many requests from this IP, please try again after 24Hours.',
+});
+
+app.use(limiter);
 
 app.post("/generateDomainSuggestions", async (req, res) => {
   const { niche } = req.body;
