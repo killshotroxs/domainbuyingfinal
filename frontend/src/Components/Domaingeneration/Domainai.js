@@ -59,7 +59,7 @@ const DomainGenerator = () => {
           };
         } catch (error) {
           console.error("Error checking domain availability: ", error);
-          setErrorMessage("An error occurred while checking domain availability.");
+          setErrorMessage("You have crossed today's rate limit for generating domain names, kindly try again in 24Hours.");
           return {
             domain,
             available: false,
@@ -86,7 +86,7 @@ const DomainGenerator = () => {
       }, 3500);
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
-      setErrorMessage("An error occurred while fetching domain name suggestions.");
+      setErrorMessage("You have crossed today's rate limit for generating domain names, kindly try again in 24Hours.");
     }
   };
 
