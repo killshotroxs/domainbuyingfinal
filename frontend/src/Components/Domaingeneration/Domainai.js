@@ -59,7 +59,7 @@ const DomainGenerator = () => {
           };
         } catch (error) {
           console.error("Error checking domain availability: ", error);
-          setErrorMessage("You have crossed today's threshold for using this project, Kindly visit again in 24Hours to generate awesome domains.");
+          setErrorMessage("An error occurred while checking domain availability.");
           return {
             domain,
             available: false,
@@ -86,7 +86,7 @@ const DomainGenerator = () => {
       }, 3500);
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
-      setErrorMessage("You have crossed today's threshold for using this project, Kindly visit again in 24Hours to generate awesome domains.");
+      setErrorMessage("An error occurred while fetching domain name suggestions.");
     }
   };
 
