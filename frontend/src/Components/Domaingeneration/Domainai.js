@@ -59,7 +59,7 @@ const DomainGenerator = () => {
           };
         } catch (error) {
           console.error("Error checking domain availability: ", error);
-          setErrorMessage("An error occurred while checking domain availability.");
+          setErrorMessage("You have crossed today's threshold for using this project, Kindly visit again in 24Hours to generate awesome domains.");
           return {
             domain,
             available: false,
