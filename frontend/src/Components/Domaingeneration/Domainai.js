@@ -86,7 +86,7 @@ const DomainGenerator = () => {
       }, 3500);
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
-      setErrorMessage("An error occurred while fetching domain name suggestions.");
+      setErrorMessage("You have crossed today's threshold for using this project, Kindly visit again in 24Hours to generate awesome domains.");
     }
   };
 
