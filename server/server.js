@@ -1,14 +1,12 @@
 require("dotenv").config();
 const express = require("express");
-const axios = require("axios");
+const { OpenAI } = require("openai");
 const cors = require("cors");
 const app = express();
-const rateLimit = require('express-rate-limit');
-
+const rateLimit = require("express-rate-limit");
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Check if the request origin is allowed (Hit n Trial)
     if (!origin || origin === "https://www.domainbuy.ing") {
       callback(null, true);
     } else {
@@ -32,43 +30,41 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
 app.post("/generateDomainSuggestions", async (req, res) => {
   const { niche } = req.body;
 
   try {
-    const openaiResponse = await axios.post(
-      "https://api.openai.com/v1/completions",
-      {
-        model: "gpt-3.5-turbo",
-        prompt: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, Focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
-        max_tokens: 100,
-        temperature: 0.2,
-        top_p: 1,
-        frequency_penalty: 0.5,
-        presence_penalty: 0.5,
-        n: 1,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    const openaiResponse = await openai.chat.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        {
+          role: "user",
+          content: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
         },
-      }
-    );
+      ],
+    });
 
-    const suggestions = openaiResponse.data.choices.map((choice) =>
-      choice.text
-        .trim()
-        .split("\n")
-        .map((s) => s.replace(/^\d+\.\s*/, ""))
-    );
+    // Extract suggestions from the response
+    const suggestions = openaiResponse.data.choices[0].message.content
+      .trim()
+      .split("\n")
+      .map((s) => s.replace(/^\d+\.\s*/, ""));
 
-    // Send the suggestions to the client via openaiapi
+    // Send the suggestions to the client
     res.json({
       suggestions,
     });
-  } catch (error) {
+  }  catch (error) {
     console.error("Error fetching domain name suggestions: ", error);
+    // If error.response exists, log the details.
+    if (error.response) {
+      console.error("Error data:", error.response.data);
+      console.error("Error status:", error.response.status);
+      console.error("Error headers:", error.response.headers);
+    }
     res.status(500).json({
       message: "Error fetching domain name suggestions",
       error: error.message,
