@@ -37,7 +37,7 @@ app.post("/generateDomainSuggestions", async (req, res) => {
   const { niche } = req.body;
 
   try {
-    const openaiResponse = await openai.chat.completions.create({
+    const openaiResponse = await openai.Completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
