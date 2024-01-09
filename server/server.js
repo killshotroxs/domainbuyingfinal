@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const { OpenAI } = require("openai");
 const cors = require("cors");
+const axios = require('axios');
 const app = express();
 const rateLimit = require("express-rate-limit");
 
@@ -57,9 +58,8 @@ app.post("/generateDomainSuggestions", async (req, res) => {
     res.json({
       suggestions,
     });
-  }  catch (error) {
+  } catch (error) {
     console.error("Error fetching domain name suggestions: ", error);
-    // If error.response exists, log the details.
     if (error.response) {
       console.error("Error data:", error.response.data);
       console.error("Error status:", error.response.status);
