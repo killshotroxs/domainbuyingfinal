@@ -39,7 +39,7 @@ app.post("/generateDomainSuggestions", async (req, res) => {
     const openaiResponse = await axios.post(
       "https://api.openai.com/v1/completions",
       {
-        model: "text-davinci-003",
+        model: "gpt-3.5-turbo",
         prompt: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, Focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
         max_tokens: 100,
         temperature: 0.2,
