@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const { OpenAI } = require("openai");
 const cors = require("cors");
-const axios = require('axios');
+const axios = require("axios");
 const app = express();
 const rateLimit = require("express-rate-limit");
 
@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3001;
 const limiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
   max: 5, // limit each IP to 5 requests per windowMs
-  message: 'Too many requests from this IP, please try again after 24Hours.',
+  message: "Too many requests from this IP, please try again after 24Hours.",
 });
 
 app.use(limiter);
@@ -37,20 +37,34 @@ app.post("/generateDomainSuggestions", async (req, res) => {
   const { niche } = req.body;
 
   try {
-    const openaiResponse = await openai.createCompletion({
+    const openaiResponse = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        {
+          role: "user",
+          content: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
+        },
+      ],
       model: "gpt-3.5-turbo",
-      prompt: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
-      max_tokens: 60 // Adjust as needed
     });
 
     // Extract suggestions from the response
-    let suggestions = openaiResponse.data.choices[0].text.trim().split("\n");
-    suggestions = suggestions.filter(s => s); // Remove empty lines if there are any
+    const suggestions = openaiResponse.data.choices[0].message.content
+      .trim()
+      .split("\n")
+      .map((s) => s.replace(/^\d+\.\s*/, ""));
 
     // Send the suggestions to the client
-    res.json({ suggestions });
+    res.json({
+      suggestions,
+    });
   } catch (error) {
     console.error("Error fetching domain name suggestions: ", error);
+    if (error.response) {
+      console.error("Error data:", error.response.data);
+      console.error("Error status:", error.response.status);
+      console.error("Error headers:", error.response.headers);
+    }
     res.status(500).json({
       message: "Error fetching domain name suggestions",
       error: error.message,
