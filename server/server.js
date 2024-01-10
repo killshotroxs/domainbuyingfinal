@@ -47,27 +47,42 @@ app.post("/generateDomainSuggestions", async (req, res) => {
         { role: "system", content: "You are a helpful assistant." },
         {
           role: "user",
-          content: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`
-        }
-      ]
+          content: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
+        },
+      ],
     });
 
-    // Note that logging in production isn't generally advisable for sensitive information.
-    console.log(openaiResponse.data.choices[0]);
+    // Log the full OpenAI response for debugging
+    console.log("OpenAI Response:", JSON.stringify(openaiResponse.data, null, 2));
+
+    // Extract choices array
+    const choices = openaiResponse.data.choices;
+    
+    if (!choices || choices.length === 0) {
+      throw new Error("No choices found in OpenAI response.");
+    }
 
     // Extract suggestions from the response
-    const suggestions = openaiResponse.data.choices[0].message.content
+    const suggestions = choices[0].message.content
       .trim()
       .split("\n")
-      .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith("AI:")); // Filter non-suggestions
+      .map((s) => s.replace(/^\d+\.\s*/, ""));
 
     res.json({ suggestions });
   } catch (error) {
     console.error("Error fetching domain name suggestions: ", error);
+
+    // Log full error details
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+    } else {
+      console.error("Non-response error:", error);
+    }
+
     res.status(500).json({
       message: "Error fetching domain name suggestions",
-      error: error.message
+      error: error.message,
+      details: error.response ? error.response.data : error,
     });
   }
 });
