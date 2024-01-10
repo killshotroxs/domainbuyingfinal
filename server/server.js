@@ -37,24 +37,21 @@ app.post("/generateDomainSuggestions", async (req, res) => {
   const { niche } = req.body;
 
   try {
-    const openaiResponse = await openai.chat.completions.create({
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        {
-          role: "user",
-          content: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
-        },
-      ],
+    const openaiResponse = await openai.createCompletion({
       model: "gpt-3.5-turbo",
+      prompt: `Generate short and relevant domain names for a website related to ${niche}. Only output 5 names, focus on names that convey ${niche} themes or concepts. Only output domain names and nothing else, make sure you don't repeat any result.`,
+      max_tokens: 60,
+      n: 1,
+      stop: ["\n"]
     });
 
-    console.log(completion.choices[0]);
-
     // Extract suggestions from the response
-    const suggestions = openaiResponse.data.choices[0].message.content
+    const suggestions = openaiResponse.data.choices[0].text
       .trim()
       .split("\n")
-      .map((s) => s.replace(/^\d+\.\s*/, ""));
+      .filter(line => line !== ''); // Ensuring empty lines are not included
+
+    console.log(suggestions);
 
     // Send the suggestions to the client
     res.json({
