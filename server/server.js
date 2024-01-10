@@ -48,6 +48,8 @@ app.post("/generateDomainSuggestions", async (req, res) => {
       model: "gpt-3.5-turbo",
     });
 
+    console.log(completion.choices[0]);
+
     // Extract suggestions from the response
     const suggestions = openaiResponse.data.choices[0].message.content
       .trim()
