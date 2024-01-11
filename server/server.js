@@ -52,23 +52,28 @@ app.post("/generateDomainSuggestions", async (req, res) => {
       ],
     });
 
-    // Add logs for diagnostic purposes
-    console.log("openaiResponse:", openaiResponse);
-      
-    if (!openaiResponse || typeof openaiResponse.data === 'undefined') {
-      // Log raw response for diagnostic purposes
-      console.error('Raw OpenAI response:', openaiResponse);
-      throw new Error('No data received from the OpenAI client. This could be due to a network issue or API limitation.');
+    // Log the full OpenAI response for debugging
+    console.log("OpenAI full response:", JSON.stringify(openaiResponse, null, 2));
+
+    // Check if choices or choices[0] does not exist
+    if (!openaiResponse || !openaiResponse.choices || !openaiResponse.choices[0]) {
+      throw new Error('Unexpected response structure from OpenAI.');
     }
 
-    // Extract suggestions from the response
-    const suggestions = openaiResponse.data.choices[0].message.content
+    // Extract the message content from the first choice
+    const messageContent = openaiResponse.choices[0].message.content;
+
+    if (!messageContent) {
+      throw new Error('No content in the first choice of the response.');
+    }
+
+    // Extract suggestions from the content
+    const suggestions = messageContent
       .trim()
       .split("\n")
       .map((s) => s.trim())
-      .filter((s) => s.length > 0); // Filter out any empty strings
+      .filter((s) => s.length > 0);
 
-    // Send the suggestions to the client
     res.json({ suggestions });
   } catch (error) {
     console.error("Error fetching domain name suggestions: ", error);
