@@ -29,7 +29,7 @@ const DomainGenerator = () => {
       setDomainSuggestions(suggestions);
       setAvailabilityResults([]);
 
-      const availabilityPromises = suggestions[0].map(async (domain) => {
+      const availabilityPromises = suggestions.map(async (domain) => {
         try {
           const availabilityResponse = await axios.get(
             `https://domainbuyingserver.vercel.app/checkDomainAvailability?domain=${domain}`
@@ -110,28 +110,26 @@ const DomainGenerator = () => {
 
       {isConfettiActive && <Confetti />}
 
-      {domainSuggestions.map((domains, index) => (
-        <div key={index} className="domain-box">
-          {domains.map((domain, subIndex) => (
-            <div key={subIndex} className="domain-item">
-              {domain}
-              {availabilityResults.length > subIndex && (
-                <div
-                  className={`availability-result ${
-                    availabilityResults[subIndex].available
-                      ? "available"
-                      : "not-available"
-                  }`}
-                >
-                  {availabilityResults[subIndex].available
-                    ? `Available - ${formattedPrices[domain] || ""}`
-                    : "Not Available"}
-                </div>
-              )}
-            </div>
-          ))}
+      {domainSuggestions.map((domain, index) => (
+  <div key={index} className="domain-box">
+    <div className="domain-item">
+      {domain}
+      {availabilityResults.length > index && (
+        <div
+          className={`availability-result ${
+            availabilityResults[index].available
+              ? "available"
+              : "not-available"
+          }`}
+        >
+          {availabilityResults[index].available
+            ? `Available - ${formattedPrices[domain] || ""}`
+            : "Not Available"}
         </div>
-      ))}
+      )}
+    </div>
+  </div>
+))}
     </div>
   );
 };
