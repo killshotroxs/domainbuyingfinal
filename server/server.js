@@ -85,7 +85,13 @@ app.post("/generateDomainSuggestions", async (req, res) => {
 });
 
 app.get("/checkDomainAvailability", async (req, res) => {
-  const { domain } = req.query;
+  const domain = req.query.domain.trim();
+
+  // Ensure the domain name is properly formatted; otherwise, respond with an error.
+  if (!/^[\w-]+\.[\w.]+$/.test(domain)) {
+    return res.status(400).json({ message: "Invalid domain format" });
+  }
+
   const apiKey = process.env.GODADDY_API_KEY;
   const apiSecret = process.env.GODADDY_API_SECRET;
   const url = `https://api.godaddy.com/v1/domains/available?domain=${domain}`;
@@ -103,14 +109,21 @@ app.get("/checkDomainAvailability", async (req, res) => {
 
     res.json(response.data);
   } catch (error) {
-    console.log(
-      `Error checking domain availability for ${domain}:`,
-      error.message
-    );
-    res.status(500).json({
-      message: "Error checking domain availability",
-      error: error.message,
-    });
+    console.error(`Error checking domain availability for ${domain}:`, error.response?.data || error.message);
+    // Error response handling from GoDaddy API
+    if (error.response) {
+      // Forward the status code and message from GoDaddy API to the client.
+      res.status(error.response.status).json({
+        message: "Error checking domain availability",
+        error: error.response.data,
+      });
+    } else {
+      // Handle cases where Axios couldn't even get a response.
+      res.status(500).json({
+        message: "Error checking domain availability",
+        error: error.message,
+      });
+    }
   }
 });
 
