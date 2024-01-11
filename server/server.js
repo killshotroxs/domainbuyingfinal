@@ -52,19 +52,8 @@ app.post("/generateDomainSuggestions", async (req, res) => {
       ],
     });
 
-    // Additional check for openaiResponse
-    if (!openaiResponse) {
-      throw new Error('Undefined response from the OpenAI client.');
-    }
-    
-    // Additional check for openaiResponse.data
-    if (!openaiResponse.data) {
-      throw new Error('Undefined data in the response from the OpenAI client.');
-    }
-
-    // Additional check for openaiResponse.data.choices
-    if (!openaiResponse.data.choices) {
-      throw new Error('Undefined choices in the response data from the OpenAI client.');
+    if (!openaiResponse || typeof openaiResponse.data === 'undefined') {
+      throw new Error('No data received from the OpenAI client. This could be due to a network issue or API limitation.');
     }
 
     // Extract suggestions from the response
@@ -77,15 +66,10 @@ app.post("/generateDomainSuggestions", async (req, res) => {
     res.json({ suggestions });
   } catch (error) {
     console.error("Error fetching domain name suggestions: ", error);
-    
-    // Send general error
     res.status(500).json({
       message: "Error fetching domain name suggestions",
       error: error.message
     });
-    
-    // Consider logging the full error for verbose output
-    console.error(error);
   }
 });
 
