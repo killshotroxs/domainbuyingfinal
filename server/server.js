@@ -85,10 +85,13 @@ app.post("/generateDomainSuggestions", async (req, res) => {
 });
 
 app.get("/checkDomainAvailability", async (req, res) => {
-  const domain = req.query.domain.trim();
+  let { domain } = req.query;
 
-  // Ensure the domain name is properly formatted; otherwise, respond with an error.
-  if (!/^[\w-]+\.[\w.]+$/.test(domain)) {
+  // Remove any prefix numbers and trim whitespace
+  domain = domain.replace(/^[0-9]+\.\s*/, '').trim();
+
+  // Make sure the domain is in the correct format before making the request to GoDaddy API
+  if (!/^[\w.-]+\.[\w]+$/.test(domain)) {
     return res.status(400).json({ message: "Invalid domain format" });
   }
 
@@ -105,20 +108,21 @@ app.get("/checkDomainAvailability", async (req, res) => {
       },
     });
 
-    console.log(`Response from GoDaddy API for ${domain}:`, response.data);
-
+    // If the domain is properly formatted and the request is successful,
+    // return the data from the GoDaddy API to the client
     res.json(response.data);
   } catch (error) {
     console.error(`Error checking domain availability for ${domain}:`, error.response?.data || error.message);
-    // Error response handling from GoDaddy API
+
+    // If we get an error response back from axios, use that response's status
+    // and error details to form the error sent back to the client
     if (error.response) {
-      // Forward the status code and message from GoDaddy API to the client.
       res.status(error.response.status).json({
         message: "Error checking domain availability",
         error: error.response.data,
       });
     } else {
-      // Handle cases where Axios couldn't even get a response.
+      // If there's no error response (network error etc.), send back a 500
       res.status(500).json({
         message: "Error checking domain availability",
         error: error.message,

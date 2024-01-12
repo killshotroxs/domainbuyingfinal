@@ -17,76 +17,65 @@ const DomainGenerator = () => {
         "https://domainbuyingserver.vercel.app/generateDomainSuggestions",
         { niche }
       );
-
-      if (openaiResponse.status === 429) {
-        const rateLimitMessage = openaiResponse.data.message;
-        setErrorMessage(rateLimitMessage);
-        return; // Stop execution if rate limit is exceeded
+  
+      if (openaiResponse.data.errorMessage) {
+        setErrorMessage(openaiResponse.data.errorMessage);
+        return; // Stop execution if there's an error message
       }
-
-      const suggestions = openaiResponse.data.suggestions;
-
+  
+      const suggestions = openaiResponse.data.suggestions
+        .map(suggestion => suggestion.replace(/^[0-9]+\.\s*/, '')); // Remove any numeric prefixes
+  
       setDomainSuggestions(suggestions);
       setAvailabilityResults([]);
-
+  
       const availabilityPromises = suggestions.map(async (domain) => {
         try {
           const availabilityResponse = await axios.get(
             `https://domainbuyingserver.vercel.app/checkDomainAvailability?domain=${domain}`
           );
-
+  
           if (availabilityResponse.status === 429) {
             const rateLimitMessage = availabilityResponse.data.message;
             setErrorMessage(rateLimitMessage);
-            return {
-              domain,
-              available: false,
-              price: null,
-            };
+            return; // Stop execution if rate limit is exceeded
           }
-
-          const available = availabilityResponse.data.available;
-          let price = null;
-
-          if (available && availabilityResponse.data.price) {
-            price = (availabilityResponse.data.price / 1000000).toFixed(2);
-          }
-
+  
           return {
-            domain,
-            available,
-            price,
+            domain: domain,
+            available: availabilityResponse.data.available,
+            price: availabilityResponse.data.price
+            // Additional properties from the response can be added here
           };
         } catch (error) {
           console.error("Error checking domain availability: ", error);
-          setErrorMessage("You have crossed today's rate limit for generating domain names, kindly try again in 24Hours.");
+          setErrorMessage("Error checking domain availability. Please try again later.");
           return {
-            domain,
+            domain: domain,
             available: false,
-            price: null,
+            price: null
+            // Ensure to return an object with the expected structure even in case of an error
           };
         }
       });
-
+  
       const availabilityResults = await Promise.all(availabilityPromises);
       setAvailabilityResults(availabilityResults);
-
+  
       const prices = {};
       availabilityResults.forEach((result) => {
         if (result.available && result.price) {
-          prices[result.domain] = `$${result.price} USD`;
+          prices[result.domain] = `$${(result.price / 1000000).toFixed(2)} USD`;
         }
       });
       setFormattedPrices(prices);
-
+  
       setConfettiActive(true);
-
-      setTimeout(() => {
-        setConfettiActive(false);
-      }, 3500);
+      setTimeout(() => setConfettiActive(false), 3500);
+  
     } catch (error) {
       console.error("Error fetching domain name suggestions: ", error);
-      setErrorMessage("You have crossed today's rate limit for generating domain names, kindly try again in 24Hours.");
+      setErrorMessage("Error fetching domain name suggestions. Please try again later.");
     }
   };
 
