@@ -4,7 +4,7 @@ const { OpenAI } = require("openai");
 const cors = require("cors");
 const axios = require("axios");
 const app = express();
-app.set('trust proxy', 1); // Trust first proxy
+app.set('trust proxy', 1); 
 const rateLimit = require("express-rate-limit");
 
 const corsOptions = {
@@ -52,22 +52,21 @@ app.post("/generateDomainSuggestions", async (req, res) => {
       ],
     });
 
-    // Log the full OpenAI response for debugging
+    
     console.log("OpenAI full response:", JSON.stringify(openaiResponse, null, 2));
 
-    // Check if choices or choices[0] does not exist
+    
     if (!openaiResponse || !openaiResponse.choices || !openaiResponse.choices[0]) {
       throw new Error('Unexpected response structure from OpenAI.');
     }
 
-    // Extract the message content from the first choice
+    
     const messageContent = openaiResponse.choices[0].message.content;
 
     if (!messageContent) {
       throw new Error('No content in the first choice of the response.');
     }
 
-    // Extract suggestions from the content
     const suggestions = messageContent
       .trim()
       .split("\n")
@@ -87,10 +86,10 @@ app.post("/generateDomainSuggestions", async (req, res) => {
 app.get("/checkDomainAvailability", async (req, res) => {
   let { domain } = req.query;
 
-  // Remove any prefix numbers and trim whitespace
+  
   domain = domain.replace(/^[0-9]+\.\s*/, '').trim();
 
-  // Make sure the domain is in the correct format before making the request to GoDaddy API
+ 
   if (!/^[\w.-]+\.[\w]+$/.test(domain)) {
     return res.status(400).json({ message: "Invalid domain format" });
   }
@@ -108,21 +107,17 @@ app.get("/checkDomainAvailability", async (req, res) => {
       },
     });
 
-    // If the domain is properly formatted and the request is successful,
-    // return the data from the GoDaddy API to the client
+   
     res.json(response.data);
   } catch (error) {
     console.error(`Error checking domain availability for ${domain}:`, error.response?.data || error.message);
 
-    // If we get an error response back from axios, use that response's status
-    // and error details to form the error sent back to the client
     if (error.response) {
       res.status(error.response.status).json({
         message: "Error checking domain availability",
         error: error.response.data,
       });
     } else {
-      // If there's no error response (network error etc.), send back a 500
       res.status(500).json({
         message: "Error checking domain availability",
         error: error.message,

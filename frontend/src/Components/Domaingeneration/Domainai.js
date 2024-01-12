@@ -20,11 +20,11 @@ const DomainGenerator = () => {
   
       if (openaiResponse.data.errorMessage) {
         setErrorMessage(openaiResponse.data.errorMessage);
-        return; // Stop execution if there's an error message
+        return; 
       }
   
       const suggestions = openaiResponse.data.suggestions
-        .map(suggestion => suggestion.replace(/^[0-9]+\.\s*/, '')); // Remove any numeric prefixes
+        .map(suggestion => suggestion.replace(/^[0-9]+\.\s*/, '')); 
   
       setDomainSuggestions(suggestions);
       setAvailabilityResults([]);
@@ -38,14 +38,13 @@ const DomainGenerator = () => {
           if (availabilityResponse.status === 429) {
             const rateLimitMessage = availabilityResponse.data.message;
             setErrorMessage(rateLimitMessage);
-            return; // Stop execution if rate limit is exceeded
+            return; 
           }
   
           return {
             domain: domain,
             available: availabilityResponse.data.available,
             price: availabilityResponse.data.price
-            // Additional properties from the response can be added here
           };
         } catch (error) {
           console.error("Error checking domain availability: ", error);
@@ -54,7 +53,7 @@ const DomainGenerator = () => {
             domain: domain,
             available: false,
             price: null
-            // Ensure to return an object with the expected structure even in case of an error
+            
           };
         }
       });
