@@ -8,13 +8,7 @@ app.set('trust proxy', 1);
 const rateLimit = require("express-rate-limit");
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || origin === "https://www.domainbuy.ing") {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: ["http://localhost:3000", "https://www.domainbuy.ing"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
@@ -27,7 +21,7 @@ const PORT = process.env.PORT || 3001;
 
 const limiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-  max: 5, // limit each IP to 5 requests per windowMs
+  max: 10, // limit each IP to 5 requests per windowMs
   message: "Too many requests from this IP, please try again after 24Hours.",
 });
 
